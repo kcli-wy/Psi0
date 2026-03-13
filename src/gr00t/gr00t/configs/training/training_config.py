@@ -30,6 +30,7 @@ class TrainingConfig:
     optim: str = "adamw_torch_fused"
 
     start_from_checkpoint: Optional[str] = None
+    reinit_action_head: bool = False
 
     # Mixed precision
     tf32: bool = True

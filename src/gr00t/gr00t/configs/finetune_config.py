@@ -44,6 +44,9 @@ class FinetuneConfig:
     tune_diffusion_model: bool = True
     """If True, fine-tune the diffusion-based action decoder (if present in the model)."""
 
+    reinit_action_head: bool = False
+    """If True, reinitialize GR00T action-head parameters after loading the base checkpoint."""
+
     state_dropout_prob: float = 0.0
     """
     Dropout probability applied to state inputs for regularization during training.
@@ -116,3 +119,6 @@ class FinetuneConfig:
 
     num_shards_per_epoch: int = int(1e5)
     """Number of shards to use for the dataset. reduce this number if vram is limited."""
+
+    override_pretraining_statistics: bool = False
+    """If True, replace checkpoint-normalization statistics with stats computed from current dataset(s).""" # NOTE: this is only for pretraining from scratch.

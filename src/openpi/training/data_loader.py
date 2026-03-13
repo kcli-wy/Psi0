@@ -7,7 +7,6 @@ from typing import Literal, Protocol, SupportsIndex, TypeVar
 
 import jax
 import jax.numpy as jnp
-import lerobot.common.datasets.lerobot_dataset as lerobot_dataset
 import numpy as np
 import torch
 
@@ -15,6 +14,7 @@ import openpi.models.model as _model
 import openpi.training.config as _config
 from openpi.training.droid_rlds_dataset import DroidRldsDataset
 import openpi.transforms as _transforms
+from psi.data.lerobot.compat import LeRobotDataset, LeRobotDatasetMetadata
 
 T_co = TypeVar("T_co", covariant=True)
 
@@ -137,8 +137,8 @@ def create_torch_dataset(
     if repo_id == "fake":
         return FakeDataset(model_config, num_samples=1024)
 
-    dataset_meta = lerobot_dataset.LeRobotDatasetMetadata(repo_id)
-    dataset = lerobot_dataset.LeRobotDataset(
+    dataset_meta = LeRobotDatasetMetadata(repo_id)
+    dataset = LeRobotDataset(
         "psi",
         root=data_config.repo_id,
         delta_timestamps={

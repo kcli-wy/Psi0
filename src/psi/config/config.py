@@ -44,6 +44,7 @@ class TrainConfig(BaseModel):
     gradient_accumulation_steps: int = 1
     mixed_precision: str = "bf16"  # "no" for fp32, "fp16", "bf16"
     max_grad_norm: float | None = None  # 1.0
+    optimizer_foreach: bool | None = None
 
     train_batch_size: int = 16
     val_batch_size: int = 16

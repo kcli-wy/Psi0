@@ -190,9 +190,12 @@ class FinetuneTrainer(Trainer):
                 'group_name': 'other'
             })
 
+        optimizer_kwargs = dict(self.cfg.train.lr_scheduler_kwargs)
+        if self.cfg.train.optimizer_foreach is not None:
+            optimizer_kwargs["foreach"] = self.cfg.train.optimizer_foreach
         self.optimizer = torch.optim.AdamW(
             param_groups,
-            **self.cfg.train.lr_scheduler_kwargs # type: ignore
+            **optimizer_kwargs, # type: ignore
         )
 
     def create_lr_schedulers(

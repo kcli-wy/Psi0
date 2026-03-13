@@ -26,12 +26,27 @@ git submodule update --init --recursive third_party/SIMPLE
 
 ## Evaluation
 
-> REMINDER: Start server before starting the eval client
-
 copy the training dataset to SIMPLE `data`, which will be mounted into the docker container
 ```
 cp -r $DATA_HOME/G1WholebodyBendPick-v0-psi0 ./data/
 ```
+
+### Using nix
+Evaluate a PSI checkpoint directly from this repo with the SIMPLE library API:
+```
+source .venv-psi/bin/activate
+python examples/simple/simple_eval.py \
+    --run-dir /path/to/.runs/finetune/... \
+    --ckpt-step 40000 \
+    --data-dir /hfm/data/simple/G1WholebodyBendPick-v0-psi0 \
+    --env-id simple/G1WholebodyBendPick-v0 \
+    --num-episodes 1 \
+    --save-video
+```
+> After evaluation is done, checkout the videos from `third_party/SIMPLE/data/evals/psi0`
+> REMINDER: Start server before starting the eval client
+
+### Using Docker
 
 launch the eval client
 ```
@@ -50,4 +65,3 @@ GPUs=1 docker compose run eval $task $policy \
     --num-episodes=10
 ```
 
-> After evaluation is done, checkout the videos from `third_party/SIMPLE/data/evals/psi0`

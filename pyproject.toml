@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = "==3.10.*"
 dependencies = [
     "albumentations==1.4.18",
-    "datasets>=4.1.0",
+    "datasets==3.6.0",
     "dm-tree==0.1.8",
     "einops==0.8.1",
     "einx>=0.3.0",
@@ -24,7 +24,7 @@ dependencies = [
     "typer>=0.19.1",
     "tyro==0.9.32",
     "vuer[all]>=0.0.68",
-    "wandb==0.18.0",
+    "wandb>=0.20.0",
     "simplejpeg>=1.9.0",
     "dotenv",
     "gdown>=5.2.0",
@@ -39,6 +39,7 @@ psi = ["assets/*"]
 
 [tool.uv.sources]
 psi = { path = ".", editable = true }
+simple = { path = "third_party/SIMPLE", editable = true }
 
 [tool.uv.workspace]
 members = ["packages/*"]
@@ -58,18 +59,23 @@ viz = [
 ]
 
 psi = [
-    "torch==2.6.0",
-    "torchvision==0.21.0",
-    "torchcodec==0.2.1",
+    "setuptools>=61",
+    "torch==2.7.0",
+    "torchvision==0.22.0",
+    "torchcodec==0.4.0",
     "transformers==4.57.0",
     "deepspeed==0.17.1",
     "flash_attn==2.7.4.post1",
-    "triton==3.2.0",
+    "triton==3.3.0",
     "accelerate==1.7.0",
     "peft==0.17.1",
     "qwen-vl-utils==0.0.14",
     "sentencepiece",
-    "lerobot @ git+https://github.com/huggingface/lerobot.git@f39652707caed42a7cd5ab36066da5663b9565eb"
+    "lerobot @ git+https://github.com/songlin/lerobot.git@09929d8057b044b53aecaf5c6d7eb71f99e8beb9"
+]
+
+simple = [
+    "simple[full]",
 ]
 
 [tool.uv.extra-build-dependencies]

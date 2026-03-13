@@ -88,12 +88,9 @@ Test installation, a version number should be displayed.
 python -c "import psi;print(psi.__version__)"
 ```
 
-> 🤫 Because the dependent LeRobot version has bug, please apply the patch for each created environment.
-
-Apply the following `LeRobot` patch.
-```
-cp src/lerobot_patch/common/datasets/lerobot_dataset.py \
-  .venv-psi/lib/python3.10/site-packages/lerobot/common/datasets/lerobot_dataset.py
+Verify the shared `lerobot` stack is importable.
+```bash
+python -c "from psi.data.lerobot.compat import LEROBOT_LAYOUT; print(LEROBOT_LAYOUT)"
 ```
 
 ### Data Collection
@@ -284,14 +281,16 @@ We use [SIMPLE]() to benchmark $\Psi_0$ and all the baselines.
 > 📢 SIMPLE is an easy-to-use humanoid benchmarking simulator built on the MuJoCo physics engine and Isaac Sim rendering.
 
 ### Install SIMPLE
-[TODO]
+[Coming soon]
 
 ### Data Generation
 > 📂 We also provide 5 pre-collected whole-body humanoid loco-manipulation tasks at [Huggingface psi-data](https://huggingface.co/datasets/songlinwei/psi-data/tree/main/real). If you want to use the existing simulation data, jump to the [Fine-Tuning](#training-sim)
 
 #### Motion-Planning Based Data Generation
+[Coming soon]
+
 #### Teleoperation in Simulator
-[TODO]
+[Coming soon]
 
 <a id="training-sim"></a>
 ### Fine-Tuning
@@ -321,6 +320,7 @@ Start training:
 bash scripts/train/psi0/finetune-simple-psi0.sh $task
 ```
 The training will create a run dir which is located under `.runs` in the project root.
+If your GPU has limited VRAM, set `--train.optimizer-foreach=false` to reduce optimizer-step memory usage at the cost of some speed.
 
 ### Evaluation in SIMPLE
 
@@ -440,11 +440,13 @@ hf download songlinwei/psi-models \
 
 1. Lerobot dataset issues: `stack(): argument 'tensors' (position 1) must be tuple of Tensors, not Column`
 
-> ⚠️ change `.env/...` to the target env path.
+This usually means the environment is still on the legacy PSI `lerobot` stack. Resync the PSI env so it uses the
+same `lerobot` and `datasets` versions as SIMPLE, then verify the import layout:
 
-```
-cp src/lerobot_patch/common/datasets/lerobot_dataset.py \
-  .venv/lib/python3.10/site-packages/lerobot/common/datasets/lerobot_dataset.py
+```bash
+source .venv-psi/bin/activate
+uv sync --group psi --active
+python -c "from psi.data.lerobot.compat import LEROBOT_LAYOUT; print(LEROBOT_LAYOUT)"
 ```
 
 2. Fail to install `evdev`, `src/evdev/input.c:10:10: fatal error: Python.h: No such file or directory`

@@ -47,3 +47,9 @@ src/fast/egodex-*
 *.bak
 #uv.lock
 .vscode/
+.direnv/
+third_party/
+src/gr00t/.venv/
+props/
+textures/
+test.py

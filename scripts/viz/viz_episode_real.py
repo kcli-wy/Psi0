@@ -114,7 +114,7 @@ def main(args: Args) -> None:
     server = viser.ViserServer(args.host, args.port)
 
     # Load the LeRobot dataset
-    from lerobot.common.datasets.lerobot_dataset import LeRobotDataset
+    from psi.data.lerobot.compat import LeRobotDataset
     dataset = LeRobotDataset(args.data_dir, episodes=[args.episode_idx])
 
     @server.on_client_connect

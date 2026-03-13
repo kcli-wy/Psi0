@@ -92,6 +92,12 @@ class Gr00tN1d6Pipeline(ModelPipeline):
                     )
                 logging.info("mask_token not in checkpoint - initialized")
 
+            if self.config.training.reinit_action_head:
+                logging.warning(
+                    "Reinitializing GR00T action head while keeping loaded backbone weights."
+                )
+                model.action_head = model.action_head.__class__(self.config.model)
+
         else:
             model = self.model_class(
                 self.config.model, transformers_loading_kwargs=self.transformers_loading_kwargs
@@ -108,7 +114,7 @@ class Gr00tN1d6Pipeline(ModelPipeline):
         logging.info(
             f"Trainable parameters: {trainable_params:,} ({100 * trainable_params / total_params:.2f}%)"
         )
-        print("Model: ", model)
+        # print("Model: ", model)
 
         return model
 
@@ -133,6 +139,8 @@ class Gr00tN1d6Pipeline(ModelPipeline):
                 model_name=self.model_config.model_name,
                 model_type=self.model_config.backbone_model_type,
                 formalize_language=self.model_config.formalize_language,
+                max_state_dim=self.model_config.max_state_dim,
+                max_action_dim=self.model_config.max_action_dim,
                 apply_sincos_state_encoding=self.model_config.apply_sincos_state_encoding,
                 max_action_horizon=self.model_config.action_horizon,
                 use_albumentations=self.model_config.use_albumentations_transforms,
@@ -166,12 +174,29 @@ class Gr00tN1d6Pipeline(ModelPipeline):
                 transformers_loading_kwargs=self.transformers_loading_kwargs,
             )
 
-        print(
-            colored(
-                f"These are all the processor configs for training: {json.dumps({k: str(v) for k, v in vars(processor).items()}, indent=2)}",
-                "yellow",
+        # Keep processor tensor shapes in sync with model config even when loaded from checkpoint.
+        if hasattr(processor, "max_state_dim") and processor.max_state_dim != self.model_config.max_state_dim:
+            logging.warning(
+                f"Overriding processor.max_state_dim {processor.max_state_dim} -> {self.model_config.max_state_dim}"
             )
-        )
+            processor.max_state_dim = self.model_config.max_state_dim
+        if hasattr(processor, "max_action_dim") and processor.max_action_dim != self.model_config.max_action_dim:
+            logging.warning(
+                f"Overriding processor.max_action_dim {processor.max_action_dim} -> {self.model_config.max_action_dim}"
+            )
+            processor.max_action_dim = self.model_config.max_action_dim
+        if hasattr(processor, "max_action_horizon") and processor.max_action_horizon != self.model_config.action_horizon:
+            logging.warning(
+                f"Overriding processor.max_action_horizon {processor.max_action_horizon} -> {self.model_config.action_horizon}"
+            )
+            processor.max_action_horizon = self.model_config.action_horizon
+
+        # print(
+        #     colored(
+        #         f"These are all the processor configs for training: {json.dumps({k: str(v) for k, v in vars(processor).items()}, indent=2)}",
+        #         "yellow",
+        #     )
+        # )
         if get_rank() == 0:
             with open(self.save_cfg_dir / "final_processor_config.json", "w") as f:
                 json.dump({k: str(v) for k, v in vars(processor).items()}, f, indent=2)

@@ -105,7 +105,8 @@ class PretrainTrainer(Qwen3vlMixin, Trainer):
             lr=self.train_cfg.learning_rate,
             betas=(betas[0], betas[1]),
             weight_decay=decay, # type:ignore
-            eps=eps
+            eps=eps,
+            **({"foreach": self.train_cfg.optimizer_foreach} if self.train_cfg.optimizer_foreach is not None else {}),
         ) # type:ignore
 
     def create_datasets(self) -> tuple[Dataset, Dataset | None]:

@@ -3,6 +3,7 @@
 
 import os
 from pathlib import Path
+import json
 
 import tyro
 
@@ -25,6 +26,15 @@ def load_modality_config(modality_config_path: str):
         raise FileNotFoundError(f"Modality config path does not exist: {modality_config_path}")
 
 
+def load_checkpoint_model_config(base_model_path: str) -> dict:
+    """Load the saved model config from a local GR00T checkpoint directory."""
+    config_path = Path(base_model_path) / "config.json"
+    if not config_path.exists():
+        raise FileNotFoundError(f"Missing checkpoint config: {config_path}")
+    with config_path.open("r") as f:
+        return json.load(f)
+
+
 if __name__ == "__main__":
     # Set LOGURU_LEVEL environment variable if not already set (default: INFO)
     if "LOGURU_LEVEL" not in os.environ:
@@ -37,13 +47,17 @@ if __name__ == "__main__":
     if ft_config.modality_config_path is not None:
         load_modality_config(ft_config.modality_config_path)
 
+    dataset_paths = [p.strip() for p in ft_config.dataset_path.split(",") if p.strip()]
+    if not dataset_paths:
+        raise ValueError("dataset_path must contain at least one non-empty path")
+
     config = get_default_config().load_dict(
         {
             "data": {
                 "download_cache": False,
                 "datasets": [
                     {
-                        "dataset_paths": [ft_config.dataset_path],
+                        "dataset_paths": dataset_paths,
                         "mix_ratio": 1.0,
                         "embodiment_tag": embodiment_tag,
                     }
@@ -52,6 +66,7 @@ if __name__ == "__main__":
         }
     )
     config.load_config_path = None
+    config.model = config.model.__class__(**load_checkpoint_model_config(ft_config.base_model_path))
 
     # overwrite with finetune config supplied by the user
     config.model.tune_llm = ft_config.tune_llm
@@ -69,7 +84,9 @@ if __name__ == "__main__":
     config.model.backbone_trainable_params_fp32 = True
     config.model.use_relative_action = True
 
+
     config.training.start_from_checkpoint = ft_config.base_model_path
+    config.training.reinit_action_head = ft_config.reinit_action_head
     config.training.optim = "adamw_torch"
     config.training.global_batch_size = ft_config.global_batch_size
     config.training.dataloader_num_workers = ft_config.dataloader_num_workers
@@ -88,5 +105,6 @@ if __name__ == "__main__":
     config.data.shard_size = ft_config.shard_size
     config.data.episode_sampling_rate = ft_config.episode_sampling_rate
     config.data.num_shards_per_epoch = ft_config.num_shards_per_epoch
+    config.data.override_pretraining_statistics = ft_config.override_pretraining_statistics
 
     run(config)

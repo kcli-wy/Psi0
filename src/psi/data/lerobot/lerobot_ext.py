@@ -5,8 +5,11 @@ if TYPE_CHECKING:
     # from psi.config.data_simple import SimpleDataConfig
 
 import torch
-from lerobot.common.datasets.lerobot_dataset import LeRobotDataset, MultiLeRobotDataset
-from lerobot.common.datasets.lerobot_dataset import LeRobotDatasetMetadata
+from psi.data.lerobot.compat import (
+    LeRobotDataset,
+    LeRobotDatasetMetadata,
+    MultiLeRobotDataset,
+)
 from psi.utils import resolve_path
 from psi.config.transform import LerobotRepackTransform
 

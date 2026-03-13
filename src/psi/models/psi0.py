@@ -1599,7 +1599,6 @@ class Psi0Model(nn.Module):
         model.action_dim = launch_config.model.action_dim
         model.device = device
         return model
-    
     def forward(
         self,
         input_ids,
