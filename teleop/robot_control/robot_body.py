@@ -160,15 +160,11 @@ class BaseBodyController:
         self.odom_buffer.SetData(msg)
 
     def get_odom_data(self):
-        state = self.odom_buffer.GetData()
-        if not state:
-            return None
-
         return {
-            "position": np.array(state.position),
-            "velocity": np.array(state.velocity),
-            "orientation_rpy": np.array(state.imu_state.rpy),
-            "orientation_quaternion": np.array(state.imu_state.quaternion),
+            "position": np.zeros(3, dtype=np.float32),
+            "velocity": np.zeros(3, dtype=np.float32),
+            "orientation_rpy": np.zeros(3, dtype=np.float32),
+            "orientation_quaternion": np.zeros(4, dtype=np.float32),
         }
 
     def _setup_motor_params(self):
